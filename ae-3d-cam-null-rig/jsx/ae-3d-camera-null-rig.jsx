@@ -20,9 +20,9 @@
 
     try {
         app.beginUndoGroup("create a 3D camera and null rig?");
-        var activeComp = app.project.activeItem;
-
-        hello(activeComp)
+        
+        createCameraRig()
+        
       } catch(error) {
         alert("An error occured on line: " + error.line + "\nError message: " + error.message);
 
@@ -32,11 +32,82 @@
       }
       
       
+      function getProj(){
+        var proj = app.project;
 
-    function hello(comp){
-      if(!(comp && comp instanceof CompItem)){
-        return alert("Open up a comp first")
+        if(!proj){
+          alert("Whoops!\r\rLooks like you don't have a project open. Open up an AE project or create a new one.")
+          return null
+        }
+
+        return proj
+
       }
-    }
+
+      function getComps(){
+        var proj = getProj();
+
+        if(!proj) return null;
+
+
+        var selectedComps = proj.selection;
+
+        if(selectedComps.length < 1){
+          return alert("Whoops!\r\rLooks like you don't have any project items selected. Select atleast 1 project item and try again.");
+        }
+
+        var compArray = new Array();
+
+        for(var i = 0; i<selectedComps.length; i++){
+          var items = selectedComps[i];
+          var found = false;
+            if(items instanceof CompItem){
+              found = true;
+              compArray.push(items);
+            }
+
+           if(!found){
+            return alert("Whoops!\r\rYou don't have any comp items selected. Select atleast 1 comp item before trying again.")
+           } 
+        }
+
+
+        return selectedComps
+
+      }
+
+
+      function createCameraRig(){
+        var comps = getComps();
+
+        if(!comps) return null;
+
+        for(var i = 0; i<comps.length; i++){
+          var labelColor = 1;
+
+          var comp = comps[i];
+          var layerCollection = comp.layers;
+          var compCam = layerCollection.addCamera("Comp Camera", [comp.width/2, comp.height/2]);
+          compCam.label = labelColor;
+          var camTransformGroup = compCam.property("ADBE Transform Group");
+          var camPosition = camTransformGroup.property("ADBE Position");
+          camPosition.setValue([comp.width/2, comp.height/2, -2666.7]);
+
+          var cameraNull = layerCollection.addShape();
+          cameraNull.name = "Camera Null";
+          cameraNull.label = labelColor;
+          cameraNull.guideLayer = true;
+          cameraNull.threeDLayer = true;
+
+          compCam.parent = cameraNull;
+        }
+
+        
+
+        return 
+
+      }
+
+
 
 }())
