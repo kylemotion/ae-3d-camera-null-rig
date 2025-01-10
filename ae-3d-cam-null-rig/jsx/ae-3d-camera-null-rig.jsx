@@ -47,32 +47,33 @@
       function getComps(){
         var proj = getProj();
 
-        if(!proj) return null;
-
-
+        if (!proj) return null;
+    
         var selectedComps = proj.selection;
-
-        if(selectedComps.length < 1){
-          return alert("Whoops!\r\rLooks like you don't have any project items selected. Select atleast 1 project item and try again.");
-        }
-
         var compArray = new Array();
-
-        for(var i = 0; i<selectedComps.length; i++){
-          var items = selectedComps[i];
-          var found = false;
-            if(items instanceof CompItem){
-              found = true;
-              compArray.push(items);
+    
+        
+        if (selectedComps.length > 0) {
+            for (var i = 0; i < selectedComps.length; i++) {
+                var item = selectedComps[i];
+                if (item instanceof CompItem) {
+                    compArray.push(item);
+                }
             }
-
-           if(!found){
-            return alert("Whoops!\r\rYou don't have any comp items selected. Select atleast 1 comp item before trying again.")
-           } 
+    
+            if (compArray.length < 1) {
+                return alert("Whoops!\r\rYou don't have any comp items selected. Select at least 1 comp item before trying again.");
+            }
+        } else {
+            var activeItem = app.project.activeItem;
+            if (activeItem && activeItem instanceof CompItem) {
+                compArray.push(activeItem);
+            } else {
+                return alert("Whoops!\r\rYou don't have any project items selected, and the active item is not a comp.");
+            }
         }
-
-
-        return selectedComps
+    
+        return compArray;
 
       }
 
